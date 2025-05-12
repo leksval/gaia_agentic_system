@@ -1,0 +1,19 @@
+# requirements.txt
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+pydantic>=2.4.2
+pydantic-settings>=2.0.3
+# pydantic-ai[litellm]>=0.2.0  # Removed as we're migrating to LangChain/LangGraph
+litellm>=1.10.0
+openai>=1.3.0 # Keep, likely needed by internals
+python-dotenv>=1.0.0
+tavily-python>=0.2.2 # If using Tavily for search
+langgraph>=0.1.0 # For LangGraph implementation
+langchain-core>=0.1.0 # For LangGraph implementation
+langchain>=0.1.0 # Full LangChain library
+langchain-openai>=0.1.0 # For OpenAI integration
+langchain-community>=0.1.0 # For community integrations like LiteLLM
+typing-extensions>=4.8.0 # Required by many dependencies
+# Testing dependencies
+requests>=2.31.0 # Required for API testing scripts
+# Add any other specific libraries your tools might need

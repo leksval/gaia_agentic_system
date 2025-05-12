@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GAIA Pathfinder Agent API Test</title>
+    <script src="gaia_test_questions.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        textarea {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            margin-bottom: 10px;
+            font-family: inherit;
+        }
+        
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        pre {
+            background-color: #f5f5f5;
+            padding: 10px;
+            overflow: auto;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .matching-response {
+            background-color: #d4edda !important; /* Light green */
+        }
+        
+        .non-matching-response {
+            background-color: #f5f5f5; /* Default gray */
+        }
+        
+        .response-section {
+            margin-top: 30px;
+        }
+        
+        .response-section h2 {
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+        }
+        
+        .sources-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        
+        .sources-list li {
+            margin-bottom: 5px;
+        }
+        
+        .sources-list a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        
+        .sources-list a:hover {
+            text-decoration: underline;
+        }
+        
+        .loading {
+            color: #666;
+            font-style: italic;
+        }
+        
+        .question-selector {
+            margin-bottom: 20px;
+        }
+        
+        .question-selector select {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        
+        .question-description {
+            font-style: italic;
+            color: #666;
+            margin-bottom: 15px;
+        }
+    </style>
+    <script>
+        // Function to populate the question selector dropdown
+        function populateQuestionSelector() {
+            const selector = document.getElementById('question-selector');
+            const description = document.getElementById('question-description');
+            
+            // Add default option
+            const defaultOption = document.createElement('option');
+            defaultOption.value = "";
+            defaultOption.textContent = "-- Select a predefined GAIA question --";
+            selector.appendChild(defaultOption);
+            
+            // Add options from gaiaTestQuestions
+            gaiaTestQuestions.forEach(q => {
+                const option = document.createElement('option');
+                option.value = q.id;
+                option.textContent = q.question;
+                selector.appendChild(option);
+            });
+            
+            // Add change event listener
+            selector.addEventListener('change', function() {
+                const selectedId = parseInt(this.value);
+                if (selectedId) {
+                    const selectedQuestion = gaiaTestQuestions.find(q => q.id === selectedId);
+                    document.getElementById('question').value = selectedQuestion.question;
+                    description.textContent = selectedQuestion.description;
+                    description.style.display = 'block';
+                } else {
+                    description.style.display = 'none';
+                }
+            });
+        }
+        
+        // Initialize when the page loads
+        window.onload = function() {
+            populateQuestionSelector();
+        };
+        
+        // Function to compare actual response with expected response
+        function compareResponses(actual, expected) {
+            if (!expected) return false;
+            
+            // Check if the response has the required fields
+            const hasRequiredFields = actual.answer !== undefined;
+            if (!hasRequiredFields) return false;
+            
+            // Check if the answer contains key concepts from the expected answer
+            // This is more lenient than checking length
+            const keyConceptsForQuestion = {
+                1: ["pollination", "food web", "ecosystem", "collapse", "insect"],
+                2: ["quantum", "cryptography", "RSA", "Shor", "algorithm", "encryption"],
+                3: ["ocean", "acidification", "pH", "coral", "marine", "ecosystem"],
+                4: ["sleep", "deprivation", "cognitive", "health", "memory"],
+                5: ["UBI", "universal", "basic", "income", "economic", "social"],
+                6: ["AGI", "artificial", "intelligence", "society", "human"]
+            };
+            
+            // Get the question ID from the expected response by matching it with gaiaTestQuestions
+            let questionId = 0;
+            for (let i = 0; i < gaiaTestQuestions.length; i++) {
+                if (gaiaTestQuestions[i].expectedResponse === expected) {
+                    questionId = gaiaTestQuestions[i].id;
+                    break;
+                }
+            }
+            
+            // If we couldn't determine the question ID, fall back to checking if answer exists
+            if (questionId === 0 || !keyConceptsForQuestion[questionId]) {
+                return actual.answer && actual.answer.trim() !== "";
+            }
+            
+            // Check if the answer contains at least 3 key concepts
+            const keyConcepts = keyConceptsForQuestion[questionId];
+            let conceptsFound = 0;
+            for (let concept of keyConcepts) {
+                if (actual.answer.toLowerCase().includes(concept.toLowerCase())) {
+                    conceptsFound++;
+                }
+            }
+            
+            // Return true if at least 3 key concepts are found
+            return conceptsFound >= 3;
+        }
+        
+        async function testAPI() {
+            const questionInput = document.getElementById('question');
+            const formattedResponse = document.getElementById('formatted-response');
+            const rawResponse = document.getElementById('raw-response');
+            
+            // Clear previous responses
+            formattedResponse.innerHTML = '<p class="loading">Sending request...</p>';
+            rawResponse.textContent = '';
+            
+            try {
+                const result = await fetch('http://localhost:8000/invoke', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        question: questionInput.value || 'What is the capital of France?'
+                    })
+                });
+                
+                const data = await result.json();
+                
+                // Format the response nicely
+                let formattedHtml = `
+                    <div class="response-section">
+                        <h2>Answer</h2>
+                        <div>${data.answer}</div>
+                    </div>
+                `;
+                
+                if (data.reasoning) {
+                    formattedHtml += `
+                        <div class="response-section">
+                            <h2>Reasoning</h2>
+                            <div>${data.reasoning}</div>
+                        </div>
+                    `;
+                }
+                
+                if (data.sources && data.sources.length > 0) {
+                    formattedHtml += `
+                        <div class="response-section">
+                            <h2>Sources</h2>
+                            <ul class="sources-list">
+                    `;
+                    
+                    data.sources.forEach(source => {
+                        formattedHtml += `<li><a href="${source}" target="_blank">${source}</a></li>`;
+                    });
+                    
+                    formattedHtml += `
+                            </ul>
+                        </div>
+                    `;
+                }
+                
+                formattedResponse.innerHTML = formattedHtml;
+                
+                // Display raw JSON
+                rawResponse.textContent = JSON.stringify(data, null, 2);
+                
+                // Check if this is a predefined question with an expected response
+                const questionSelector = document.getElementById('question-selector');
+                const selectedId = parseInt(questionSelector.value);
+                
+                if (selectedId) {
+                    const selectedQuestion = gaiaTestQuestions.find(q => q.id === selectedId);
+                    if (selectedQuestion && selectedQuestion.expectedResponse) {
+                        // Compare the actual response with the expected response
+                        const isMatch = compareResponses(data, selectedQuestion.expectedResponse);
+                        
+                        // Add debug info to the raw response
+                        const debugInfo = `\n\n/* Debug: Response ${isMatch ? 'MATCHES' : 'DOES NOT MATCH'} expected format for question ${selectedId} */`;
+                        rawResponse.textContent = JSON.stringify(data, null, 2) + debugInfo;
+                        
+                        // Update the background color of the raw response field
+                        if (isMatch) {
+                            rawResponse.classList.add('matching-response');
+                            rawResponse.classList.remove('non-matching-response');
+                            console.log("Response matches expected format!");
+                        } else {
+                            rawResponse.classList.add('non-matching-response');
+                            rawResponse.classList.remove('matching-response');
+                            console.log("Response does not match expected format.");
+                        }
+                    } else {
+                        rawResponse.classList.add('non-matching-response');
+                        rawResponse.classList.remove('matching-response');
+                    }
+                } else {
+                    rawResponse.classList.add('non-matching-response');
+                    rawResponse.classList.remove('matching-response');
+                }
+            } catch (error) {
+                formattedResponse.innerHTML = `<p>Error: ${error.message}</p>`;
+                rawResponse.textContent = `Error: ${error.message}`;
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>GAIA Pathfinder Agent API Test</h1>
+    
+    <div class="question-selector">
+        <label for="question-selector">Select a predefined GAIA test question:</label>
+        <select id="question-selector"></select>
+        <p id="question-description" style="display: none;"></p>
+    </div>
+    
+    <div>
+        <label for="question">Enter your question:</label>
+        <textarea id="question" placeholder="What is the capital of France?">What is the capital of France?</textarea>
+    </div>
+    
+    <button onclick="testAPI()">Submit Question</button>
+    
+    <div id="formatted-response"></div>
+    
+    <div class="response-section">
+        <h2>Raw JSON Response</h2>
+        <pre id="raw-response"></pre>
+    </div>
+</body>
+</html>
