@@ -27,6 +27,12 @@ This serves as a Minimum Viable Product (MVP) demonstrating core concepts of bui
 - [Future Improvements](#future-improvements)
 - [License](#license)
 
+## Testing demo
+
+https://github.com/user-attachments/assets/86ccc2f3-57fb-400c-b867-6f4e69d4edb6
+
+
+
 ## Quick Start
 
 Get up and running with GAIA Pathfinder Agent API in minutes:
