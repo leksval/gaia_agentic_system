@@ -1,14 +1,34 @@
-# GAIA: General Artificial Inteligence Agent System (LangChain + LangGraph - Multi-LLM)
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-
+# GAIA: General Artificial Inteligence Agent System
 ## Description
 
 This project implements a dockerized FastAPI server for easy deployment and environment consistency. 
-This AI agent system is designed to tackle complex questions tested on real L1 GAIA benchmark. It uses LangChain for agent creation and LangGraph for workflow orchestration, supports interchangeable LLM backends (OpenRouter cloud models or local Ollama models via LiteLLM), and includes tools like web search and code execution.
+This AI agent system is designed to tackle complex questions tested on real L1 GAIA benchmark. It uses LangChain for agent creation and LangGraph for workflow orchestration, supports interchangeable LLM backends (OpenRouter cloud models or local Ollama models via LiteLLM), and includes web search and code execution.
 
 **This Minimum Viable Product (MVP) demonstrating core concepts of building modular AI agent systems.**
 
+## Testing demo
+https://github.com/user-attachments/assets/86ccc2f3-57fb-400c-b867-6f4e69d4edb6
+
+## Process workflow
+Here's a high-level overview of the GAIA Pathfinder Agent API process workflow:
+
+1. **Receive Question**: The API receives a question from a user through an HTTP POST request or via html UI.
+2. **Parse Question**: The question is parsed to determine the type of response required (e.g., text, code execution).
+3. **Invoke Tool**: Based on the question type, the corresponding tool is invoked:
+	* `text_generation_tool` for simple text-based questions
+	* `code_execution_tool` for code-related questions ( secure sandboxing)
+4. **Execute Tool**:
+	* For text generation: Use a language model to generate a response.
+	* For code execution: Execute the provided code in a secure sandbox environment and return the output.
+5. **Format Response**: The tool's output is formatted into a standardized GaiaAnswer format, including answer text, metadata, and optional attachments (e.g., images).
+6. **Return Response**: The formatted response is returned to the user through an HTTP response.
+
+**Optional Steps**
+
+1. **State Management**: If conversational state management is enabled, the API stores and retrieves context from previous interactions to inform future responses.
+2. **Error Handling**: If errors occur during tool invocation or execution, error handling mechanisms are triggered to provide a graceful fallback or informative error message.
+
+This process workflow can be further refined as needed based on specific requirements and implementation details.
 
 ## Table of Contents
 
@@ -28,11 +48,6 @@ This AI agent system is designed to tackle complex questions tested on real L1 G
 - [Testing](#testing)
 - [Future Improvements](#future-improvements)
 - [License](#license)
-
-## Testing demo
-
-https://github.com/user-attachments/assets/86ccc2f3-57fb-400c-b867-6f4e69d4edb6
-
 
 
 ## Quick Start
@@ -292,18 +307,6 @@ The `tests/gaia/` directory contains:
 
    * **Web Interface**: Open `tests/gaia/test_api.html` in a browser
 
-## Future Improvements
-
-*   **Implement Secure Code Execution Sandbox:** Replace the current mock `code_execution_tool`.
-*   **Add Comprehensive Testing:** Implement unit and integration tests (`tests/` directory). ✅ Added GAIA test questions and automated testing scripts.
-*   **Enhance Observability:** Integrate structured logging and tracing (e.g., LangSmith).
-*   **Improve Error Handling:** Implement more specific error classes and handling strategies.
-*   ✅ **State Management:** Added support for conversational state management using LangGraph.
-*   ✅ **LangChain Migration:** Completed migration from PydanticAI to LangChain/LangGraph.
-*   **Tool Expansion & Organization:** Add more complex tools and potentially organize them into a sub-package.
-*   **CI/CD Pipeline:** Set up basic CI/CD for automated testing and image building.
-*   **Docker Optimization:** Ensure Docker best practices are followed for security and efficiency.
 
 ## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
