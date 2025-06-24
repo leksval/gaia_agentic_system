@@ -1,4 +1,4 @@
-# GAIA Pathfinder Agent API (LangChain + LangGraph - Multi-LLM)
+# GAIA: General Artificial Inteligence Agent System (LangChain + LangGraph - Multi-LLM)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
