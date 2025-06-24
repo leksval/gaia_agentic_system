@@ -4,9 +4,11 @@
 
 ## Description
 
-This project implements a FastAPI-based API server for an AI agent designed to tackle complex questions inspired by the GAIA benchmark. It uses LangChain for agent creation and LangGraph for workflow orchestration, supports interchangeable LLM backends (OpenRouter cloud models or local Ollama models via LiteLLM), and includes basic tools like web search and code execution. The project is containerized using Docker for easy deployment and environment consistency.
+This project implements a dockerized FastAPI server for easy deployment and environment consistency. 
+This AI agent system is designed to tackle complex questions tested on real L1 GAIA benchmark. It uses LangChain for agent creation and LangGraph for workflow orchestration, supports interchangeable LLM backends (OpenRouter cloud models or local Ollama models via LiteLLM), and includes tools like web search and code execution.
 
-This serves as a Minimum Viable Product (MVP) demonstrating core concepts of building modular AI agent systems.
+**This Minimum Viable Product (MVP) demonstrating core concepts of building modular AI agent systems.**
+
 
 ## Table of Contents
 
