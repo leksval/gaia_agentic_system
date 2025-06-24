@@ -269,12 +269,6 @@ All dependencies are specified with version constraints in `requirements.txt` to
     *   Check the health endpoint: `http://localhost:8000/health`
     *   Use the included `tests/gaia/test_api.html` file to test the API from a browser
 
-## 🚨 CRITICAL SECURITY WARNING 🚨
-
-The current implementation of the `code_execution_tool` in `app/tools.py` uses Python's `eval()` for simplicity in this **MVP**. **This is extremely insecure and MUST NOT be used in any production or publicly accessible environment.**
-
-👉 **Before any deployment or real-world use, this tool MUST be replaced with a properly sandboxed execution environment** (e.g., using Docker containers per execution, Firecracker microVMs via tools like e2b.dev, or heavily restricted environments like `RestrictedPython`). Failure to do so creates a severe remote code execution vulnerability.
-
 ## Testing
 
 The project includes a set of GAIA test questions and automated testing scripts to validate the API's functionality and response format.
